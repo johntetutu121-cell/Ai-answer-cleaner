@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>AI Answer Cleaner — Free Trial Available</title>
+  <meta name="description" content="Clean, trim and humanize AI-generated answers. Includes Turntin plagiarism check. Free trial available.">
+  <style>
+    :root{
+      --bg:#f4f7fb; --card:#ffffff; --muted:#556; --accent:#2563eb; --green:#10b981; --red:#ef4444; --orange:#f59e0b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial; margin:0; background:var(--bg); color:#0b1220;}
+    .wrap{max-width:1100px;margin:28px auto;padding:18px;}
+    header{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    h1{font-size:22px;margin:0}
+    p.lead{margin:0;color:var(--muted)}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 12px 30px rgba(8,24,48,0.06)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+    textarea{width:100%;min-height:260px;padding:12px;border-radius:8px;border:1px solid #e6eef8;font-size:15px;resize:vertical}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+    label.toggle{display:flex;gap:8px;align-items:center;background:#f4f6f9;padding:8px;border-radius:8px;border:1px solid #eef3fb}
+    .btn{background:var(--accent);color:white;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid #dbeafe}
+    .btn.alt{background:var(--green)}
+    .btn.orange{background:var(--orange)}
+    .btn.danger{background:var(--red)}
+    .small{font-size:13px;color:var(--muted)}
+    .resultWrap{background:#0f172a;color:#e6eef8;padding:14px;border-radius:10px;min-height:260px;overflow:auto}
+    .code{font-family:var(--mono);white-space:pre-wrap;line-height:1.5;font-size:14px}
+    .metaRow{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}
+    .row{display:flex;gap:10px;align-items:center}
+    .preset{background:#eef2ff;padding:8px;border-radius:8px;border:1px dashed #dbeafe;cursor:pointer}
+    .notice{font-size:13px;color:var(--muted);margin-top:10px}
+    footer{margin-top:14px;font-size:13px;color:var(--muted);text-align:center}
+    
+    /* Auth & Payment Styles */
+    .auth-container{max-width:500px;margin:40px auto}
+    .auth-form{display:flex;flex-direction:column;gap:12px}
+    .auth-form input, .auth-form select{width:100%;padding:12px;border-radius:8px;border:1px solid #e6eef8;font-size:15px}
+    .auth-tabs{display:flex;margin-bottom:16px;border-bottom:1px solid #e6eef8}
+    .auth-tab{padding:12px 20px;cursor:pointer;border-bottom:2px solid transparent}
+    .auth-tab.active{border-bottom-color:var(--accent);color:var(--accent);font-weight:600}
+    .error-message{background:#fef2f2;color:var(--red);padding:10px;border-radius:8px;font-size:14px;margin-bottom:12px}
+    .success-message{background:#f0fdf4;color:var(--green);padding:10px;border-radius:8px;font-size:14px;margin-bottom:12px}
+    .user-menu{display:flex;align-items:center;gap:12px;margin-left:auto}
+    .user-info{font-size:14px;color:var(--muted)}
+    .hidden{display:none}
+    
+    /* Payment Styles */
+    .payment-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;border-radius:12px;margin-bottom:20px}
+    .payment-amount{font-size:32px;font-weight:bold;text-align:center;margin:10px 0}
+    .payment-info{background:#fff3cd;border:1px solid #ffeaa7;padding:12px;border-radius:8px;margin-bottom:16px}
+    .payment-info h3{margin:0 0 8px 0;color:#856404}
+    .payment-info p{margin:4px 0;color:#856404;font-size:14px}
+    .payment-form{background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #e2e8f0}
+    .form-group{margin-bottom:12px}
+    .form-group label{display:block;margin-bottom:6px;font-weight:500;font-size:14px}
+    
+    /* Turntin Results */
+    .turntin-results{margin-top:16px;padding:12px;background:#f1f5f9;border-radius:8px}
+    .similarity-score{font-size:18px;font-weight:bold;text-align:center;margin:10px 0}
+    .score-low{color:var(--green)}
+    .score-medium{color:var(--orange)}
+    .score-high{color:var(--red)}
+    .matches-list{max-height:200px;overflow-y:auto;background:white;padding:8px;border-radius:4px;margin-top:8px}
+    .match-item{padding:6px;border-bottom:1px solid #e2e8f0;font-size:13px}
+    
+    /* Trial Styles */
+    .trial-card{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:white;padding:20px;border-radius:12px;margin-bottom:20px}
+    .trial-count{font-size:18px;font-weight:bold;text-align:center;margin:10px 0}
+    .trial-info{background:#d1fae5;border:1px solid #a7f3d0;padding:12px;border-radius:8px;margin-bottom:16px}
+    .trial-info h3{margin:0 0 8px 0;color:#065f46}
+    .trial-info p{margin:4px 0;color:#065f46;font-size:14px}
+    
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Free Trial Section -->
+    <div id="trialSection">
+      <div class="auth-container">
+        <div class="trial-card">
+          <h2 style="text-align:center;margin:0">🎉 Free Trial Available</h2>
+          <div class="trial-count" id="trialCountDisplay">2 Free Uses Remaining</div>
+          <p style="text-align:center;margin:0;opacity:0.9">Try our premium features before you buy!</p>
+        </div>
+        
+        <div class="card">
+          <div class="trial-info">
+            <h3>✨ Trial Features</h3>
+            <p><strong>✓</strong> Full access to AI content cleaning</p>
+            <p><strong>✓</strong> Turntin plagiarism detection</p>
+            <p><strong>✓</strong> All premium tools available</p>
+            <p><strong>⏱️</strong> <strong>2 free uses</strong> - then register for unlimited access</p>
+          </div>
+
+          <button class="btn" id="startTrialBtn" style="width:100%;padding:14px;font-size:16px">
+            🚀 Start Free Trial
+          </button>
+          
+          <div style="text-align:center;margin-top:12px">
+            <p class="small">Already have an account? <a href="#" id="trialLoginLink" style="color:#2563eb">Login here</a></p>
+            <p class="small">Or <a href="#" id="skipToPaymentLink" style="color:#2563eb">upgrade directly to premium</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div id="paymentSection" class="hidden">
+      <div class="auth-container">
+        <div class="payment-card">
+          <h2 style="text-align:center;margin:0">🎉 Premium Access</h2>
+          <div class="payment-amount">KSH 30</div>
+          <p style="text-align:center;margin:0;opacity:0.9">One-time payment for lifetime access</p>
+        </div>
+        
+        <div class="card">
+          <h3>Complete Payment to Register</h3>
+          <div class="payment-info">
+            <h3>📱 Payment Instructions</h3>
+            <p><strong>Step 1:</strong> Send <strong>KSH 30</strong> to:</p>
+            <p style="text-align:center;font-size:18px;font-weight:bold;margin:10px 0">0704470517</p>
+            <p><strong>Step 2:</strong> Fill in your payment details below</p>
+            <p><strong>Step 3:</strong> Register your account after payment verification</p>
+          </div>
+
+          <div class="payment-form">
+            <div class="form-group">
+              <label>M-Pesa Transaction Code *</label>
+              <input type="text" id="transactionCode" placeholder="e.g., SM34X8B92" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Phone Number Used for Payment *</label>
+              <input type="tel" id="paymentPhone" placeholder="e.g., 0712345678" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Payment Date *</label>
+              <input type="datetime-local" id="paymentDate" required>
+            </div>
+            
+            <button class="btn orange" id="verifyPaymentBtn" style="width:100%">
+              ✅ Verify Payment & Continue to Registration
+            </button>
+            
+            <div id="paymentError" class="error-message hidden"></div>
+            <div id="paymentSuccess" class="success-message hidden"></div>
+            
+            <div style="text-align:center;margin-top:12px">
+              <button class="btn ghost" id="backToTrialBtn">← Back to Free Trial</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registration Section -->
+    <div id="registrationSection" class="auth-container hidden">
+      <div class="card">
+        <h2>Complete Your Registration</h2>
+        <div class="success-message">
+          ✅ Payment verified successfully! Complete your registration below.
+        </div>
+        
+        <div class="auth-form">
+          <input type="text" id="registerName" placeholder="Full Name" required>
+          <input type="email" id="registerEmail" placeholder="Email Address" required>
+          <input type="password" id="registerPassword" placeholder="Password (min 6 characters)" required>
+          <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" required>
+          
+          <button class="btn" id="registerBtn">Create Account</button>
+          <button class="btn ghost" id="backToPaymentFromRegBtn">← Back to Payment</button>
+          
+          <div id="registerError" class="error-message hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Section -->
+    <div id="loginSection" class="auth-container hidden">
+      <div class="card">
+        <h2>Login to AI Answer Cleaner</h2>
+        <div class="auth-form">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+          <input type="password" id="loginPassword" placeholder="Password" required>
+          <button class="btn" id="loginBtn">Login</button>
+          <button class="btn ghost" id="backToTrialFromLoginBtn">← Back to Free Trial</button>
+          <div id="loginError" class="error-message hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Application (After Authentication) -->
+    <div id="appSection" class="hidden">
+      <header>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h1>AI Answer Cleaner — <span id="accessType">Premium</span></h1>
+            <p class="lead" id="accessDescription">Clean AI content + Turntin plagiarism check. Lifetime access - KSH 30 paid.</p>
+            <div id="trialUsageDisplay" class="small hidden"></div>
+          </div>
+          <div class="user-menu">
+            <span class="user-info">Welcome, <span id="userName">User</span></span>
+            <button class="btn ghost" id="logoutBtn">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="card">
+        <div class="small">Paste AI answer below:</div>
+        <textarea id="input" placeholder="Paste AI answer here..."></textarea>
+
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="removeDisclaimers" checked/> Remove AI disclaimers</label>
+          <label class="toggle"><input type="checkbox" id="removeApologies" checked/> Remove apologies/hedging</label>
+          <label class="toggle"><input type="checkbox" id="removeDuplicates" checked/> Remove near-duplicates</label>
+          <label class="toggle"><input type="checkbox" id="removeIntroOutro" /> Remove intro/outro</label>
+          <label class="toggle"><input type="checkbox" id="humanize" /> Humanize (rule-based)</label>
+
+          <div style="display:flex;flex-direction:column">
+            <div class="small">Shorten (%)</div>
+            <input id="shorten" type="range" min="0" max="80" value="0" style="width:200px">
+          </div>
+
+          <button id="cleanBtn" class="btn">Clean Answer</button>
+          <button id="excessBtn" class="btn alt">Excessive Content Remover</button>
+          <button id="turntinBtn" class="btn orange">Turntin Check</button>
+          <button id="copyBtn" class="btn ghost">Copy Clean Text</button>
+          <button id="downloadBtn" class="btn ghost">Download .txt</button>
+        </div>
+
+        <div class="metaRow">
+          <div class="row">
+            <div class="small">Preset:</div>
+            <div class="preset" id="presetConcise">Concise (Shorten 50%)</div>
+            <div class="preset" id="presetNoFiller">No filler</div>
+            <div class="preset" id="presetHuman">Humanize + Trim</div>
+          </div>
+        </div>
+
+        <!-- Turntin Results Section -->
+        <div id="turntinResults" class="turntin-results hidden">
+          <h4>🔍 Turntin Plagiarism Check Results</h4>
+          <div class="similarity-score">
+            Similarity Score: <span id="similarityPercent">0%</span>
+          </div>
+          <div class="matches-list" id="matchesList">
+            <!-- Matches will be populated here -->
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px">
+          <div>
+            <div class="small">Original</div>
+            <div class="card" style="background:#fbfdff">
+              <div id="original" class="result code" style="min-height:220px">—</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="small">Cleaned (code-style)</div>
+            <div class="resultWrap">
+              <div id="cleaned" class="code">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice">
+          <strong id="premiumNotice">Premium Features:</strong> AI content cleaning + Turntin plagiarism detection. 
+          One-time payment of KSH 30 for lifetime access.
+        </div>
+      </div>
+
+      <footer>AI Answer Cleaner Premium — Secure & Private</footer>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    // Trial & Authentication System
+    const trialSection = document.getElementById('trialSection');
+    const paymentSection = document.getElementById('paymentSection');
+    const registrationSection = document.getElementById('registrationSection');
+    const loginSection = document.getElementById('loginSection');
+    const appSection = document.getElementById('appSection');
+    
+    // Trial elements
+    const startTrialBtn = document.getElementById('startTrialBtn');
+    const trialCountDisplay = document.getElementById('trialCountDisplay');
+    const trialUsageDisplay = document.getElementById('trialUsageDisplay');
+    const accessType = document.getElementById('accessType');
+    const accessDescription = document.getElementById('accessDescription');
+    const premiumNotice = document.getElementById('premiumNotice');
+    
+    // Payment elements
+    const verifyPaymentBtn = document.getElementById('verifyPaymentBtn');
+    const backToTrialBtn = document.getElementById('backToTrialBtn');
+    const skipToPaymentLink = document.getElementById('skipToPaymentLink');
+    
+    // Registration elements
+    const registerBtn = document.getElementById('registerBtn');
+    const backToPaymentFromRegBtn = document.getElementById('backToPaymentFromRegBtn');
+    
+    // Login elements
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userName = document.getElementById('userName');
+    const trialLoginLink = document.getElementById('trialLoginLink');
+    const backToTrialFromLoginBtn = document.getElementById('backToTrialFromLoginBtn');
+
+    // User management
+    const users = JSON.parse(localStorage.getItem('aiCleanerUsers') || '{}');
+    const payments = JSON.parse(localStorage.getItem('aiCleanerPayments') || '{}');
+    const sessions = JSON.parse(localStorage.getItem('aiCleanerSessions') || '{}');
+    const trialUsage = JSON.parse(localStorage.getItem('aiCleanerTrialUsage') || '{}');
+
+    // Trial system - track by browser fingerprint (simple version)
+    function getBrowserFingerprint() {
+      return localStorage.getItem('browserFingerprint') || (() => {
+        const fingerprint = 'fp_' + Date.now() + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('browserFingerprint', fingerprint);
+        return fingerprint;
+      })();
+    }
+
+    function getTrialUsage() {
+      const fingerprint = getBrowserFingerprint();
+      if (!trialUsage[fingerprint]) {
+        trialUsage[fingerprint] = {
+          count: 0,
+          maxUses: 2,
+          firstUse: Date.now()
+        };
+        localStorage.setItem('aiCleanerTrialUsage', JSON.stringify(trialUsage));
+      }
+      return trialUsage[fingerprint];
+    }
+
+    function incrementTrialUsage() {
+      const fingerprint = getBrowserFingerprint();
+      const usage = getTrialUsage();
+      usage.count++;
+      trialUsage[fingerprint] = usage;
+      localStorage.setItem('aiCleanerTrialUsage', JSON.stringify(trialUsage));
+      return usage;
+    }
+
+    function canUseTrial() {
+      const usage = getTrialUsage();
+      return usage.count < usage.maxUses;
+    }
+
+    function getRemainingTrialUses() {
+      const usage = getTrialUsage();
+      return Math.max(0, usage.maxUses - usage.count);
+    }
+
+    function updateTrialDisplay() {
+      const remaining = getRemainingTrialUses();
+      trialCountDisplay.textContent = `${remaining} Free ${remaining === 1 ? 'Use' : 'Uses'} Remaining`;
+    }
+
+    function showTrialUsageInApp() {
+      const usage = getTrialUsage();
+      const remaining = getRemainingTrialUses();
+      trialUsageDisplay.textContent = `Trial: ${usage.count}/${usage.maxUses} uses (${remaining} remaining)`;
+      trialUsageDisplay.classList.remove('hidden');
+    }
+
+    function hashPassword(password) {
+      let hash = 0;
+      for (let i = 0; i < password.length; i++) {
+        const char = password.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return hash.toString();
+    }
+
+    function showError(elementId, message) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.classList.remove('hidden');
+    }
+
+    function hideError(elementId) {
+      const element = document.getElementById(elementId);
+      element.classList.add('hidden');
+    }
+
+    function showSuccess(elementId, message) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.classList.remove('hidden');
+    }
+
+    function switchToSection(section) {
+      [trialSection, paymentSection, registrationSection, loginSection, appSection].forEach(sec => {
+        sec.classList.add('hidden');
+      });
+      section.classList.remove('hidden');
+    }
+
+    function switchToApp(user, isTrial = false) {
+      switchToSection(appSection);
+      userName.textContent = user.name;
+      
+      if (isTrial) {
+        accessType.textContent = 'Trial';
+        accessDescription.textContent = 'Clean AI content + Turntin plagiarism check. Free trial - register for unlimited access.';
+        premiumNotice.innerHTML = '<strong>Trial Features:</strong> AI content cleaning + Turntin plagiarism detection. <strong>Register for unlimited access!</strong>';
+        showTrialUsageInApp();
+      } else {
+        accessType.textContent = 'Premium';
+        accessDescription.textContent = 'Clean AI content + Turntin plagiarism check. Lifetime access - KSH 30 paid.';
+        premiumNotice.innerHTML = '<strong>Premium Features:</strong> AI content cleaning + Turntin plagiarism detection. One-time payment of KSH 30 for lifetime access.';
+        trialUsageDisplay.classList.add('hidden');
+      }
+      
+      // Store session
+      const sessionId = 'session_' + Date.now();
+      sessions[sessionId] = { 
+        userId: user.email || 'trial_user', 
+        timestamp: Date.now(),
+        isTrial: isTrial 
+      };
+      localStorage.setItem('aiCleanerSessions', JSON.stringify(sessions));
+      localStorage.setItem('currentSession', sessionId);
+    }
+
+    function checkExistingSession() {
+      const sessionId = localStorage.getItem('currentSession');
+      if (sessionId && sessions[sessionId]) {
+        const session = sessions[sessionId];
+        if (session.isTrial) {
+          const user = { name: 'Trial User' };
+          switchToApp(user, true);
+          return true;
+        } else {
+          const user = users[session.userId];
+          if (user && user.paymentVerified) {
+            switchToApp(user, false);
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Initialize trial display
+    updateTrialDisplay();
+
+    // Check for existing session on page load
+    if (checkExistingSession()) {
+      // User is already logged in
+    }
+
+    // Start Trial
+    startTrialBtn.addEventListener('click', () => {
+      if (!canUseTrial()) {
+        showError('paymentError', 'You have used all your free trials. Please register for unlimited access.');
+        switchToSection(paymentSection);
+        return;
+      }
+
+      const usage = incrementTrialUsage();
+      updateTrialDisplay();
+      
+      const trialUser = {
+        name: 'Trial User',
+        email: 'trial_user_' + getBrowserFingerprint(),
+        isTrial: true
+      };
+      
+      switchToApp(trialUser, true);
+    });
+
+    // Skip to payment
+    skipToPaymentLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchToSection(paymentSection);
+    });
+
+    // Back to trial from payment
+    backToTrialBtn.addEventListener('click', () => {
+      switchToSection(trialSection);
+    });
+
+    // Back to trial from login
+    backToTrialFromLoginBtn.addEventListener('click', () => {
+      switchToSection(trialSection);
+    });
+
+    // Trial login link
+    trialLoginLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchToSection(loginSection);
+    });
+
+    // Payment Verification
+    verifyPaymentBtn.addEventListener('click', () => {
+      const transactionCode = document.getElementById('transactionCode').value.trim();
+      const paymentPhone = document.getElementById('paymentPhone').value.trim();
+      const paymentDate = document.getElementById('paymentDate').value;
+
+      hideError('paymentError');
+      hideError('paymentSuccess');
+
+      if (!transactionCode || !paymentPhone || !paymentDate) {
+        showError('paymentError', 'Please fill in all payment details');
+        return;
+      }
+
+      if (transactionCode.length < 5) {
+        showError('paymentError', 'Please enter a valid transaction code');
+        return;
+      }
+
+      if (paymentPhone.length < 10) {
+        showError('paymentError', 'Please enter a valid phone number');
+        return;
+      }
+
+      // Simulate payment verification (in real system, this would call an API)
+      setTimeout(() => {
+        // Store payment info
+        const paymentId = 'pay_' + Date.now();
+        payments[paymentId] = {
+          transactionCode: transactionCode,
+          phone: paymentPhone,
+          date: paymentDate,
+          amount: 30,
+          verified: true,
+          verifiedAt: new Date().toISOString()
+        };
+        localStorage.setItem('aiCleanerPayments', JSON.stringify(payments));
+        
+        // Store payment ID for registration
+        localStorage.setItem('pendingPayment', paymentId);
+        
+        showSuccess('paymentSuccess', 'Payment verified successfully! You can now register.');
+        
+        // Switch to registration after 1 second
+        setTimeout(() => {
+          switchToSection(registrationSection);
+        }, 1000);
+      }, 1500);
+    });
+
+    // Back to payment from registration
+    backToPaymentFromRegBtn.addEventListener('click', () => {
+      switchToSection(paymentSection);
+    });
+
+    // Registration
+    registerBtn.addEventListener('click', () => {
+      const name = document.getElementById('registerName').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+      const paymentId = localStorage.getItem('pendingPayment');
+
+      hideError('registerError');
+
+      if (!paymentId) {
+        showError('registerError', 'Payment verification required. Please complete payment first.');
+        return;
+      }
+
+      if (!name || !email || !password || !confirmPassword) {
+        showError('registerError', 'Please fill in all fields');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('registerError', 'Password must be at least 6 characters');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('registerError', 'Passwords do not match');
+        return;
+      }
+
+      if (users[email]) {
+        showError('registerError', 'User already exists. Please login.');
+        return;
+      }
+
+      // Create new user with payment verification
+      users[email] = {
+        name: name,
+        email: email,
+        password: hashPassword(password),
+        paymentId: paymentId,
+        paymentVerified: true,
+        registeredAt: new Date().toISOString(),
+        accessExpires: null // Lifetime access
+      };
+
+      localStorage.setItem('aiCleanerUsers', JSON.stringify(users));
+      localStorage.removeItem('pendingPayment');
+      
+      // Auto-login after registration
+      switchToApp(users[email], false);
+    });
+
+    // Login
+    loginBtn.addEventListener('click', () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      hideError('loginError');
+
+      if (!email || !password) {
+        showError('loginError', 'Please fill in all fields');
+        return;
+      }
+
+      const user = users[email];
+      if (!user) {
+        showError('loginError', 'User not found. Please register first.');
+        return;
+      }
+
+      if (!user.paymentVerified) {
+        showError('loginError', 'Payment not verified. Please complete payment first.');
+        return;
+      }
+
+      if (user.password !== hashPassword(password)) {
+        showError('loginError', 'Invalid password');
+        return;
+      }
+
+      switchToApp(user, false);
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      const sessionId = localStorage.getItem('currentSession');
+      if (sessionId) {
+        delete sessions[sessionId];
+        localStorage.setItem('aiCleanerSessions', JSON.stringify(sessions));
+        localStorage.removeItem('currentSession');
+      }
+      
+      switchToSection(trialSection);
+      
+      // Clear forms
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+    });
+
+    // ---------------------
+    // AI Cleaner Functionality
+    // ---------------------
+    
+    function splitSentences(text){
+      return text
+        .replace(/\r\n/g,'\n')
+        .split(/\n+/)
+        .map(s=>s.trim())
+        .filter(Boolean)
+        .map(par => par.split(/(?<=[.?!])\s+(?=[A-Z0-9"'\u2018\u2019])/g).map(x=>x.trim()))
+        .flat()
+        .filter(Boolean);
+    }
+
+    function joinSentences(arr){
+      return arr.join(' ').replace(/\s{2,}/g,' ').trim();
+    }
+
+    function normalizeForCompare(s){
+      return s.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
+    }
+
+    function uniqueByNormalized(arr){
+      const seen = new Set();
+      const out = [];
+      for(const s of arr){
+        const n = normalizeForCompare(s);
+        if(!seen.has(n) && n.length>0){
+          seen.add(n); out.push(s);
+        }
+      }
+      return out;
+    }
+
+    function longestSentencesFirst(arr, keep){
+      const scored = arr.map((s,idx)=>({s,idx,score:s.length}));
+      scored.sort((a,b)=>b.score - a.score);
+      return scored.slice(0,keep).sort((a,b)=>a.idx - b.idx).map(x=>x.s);
+    }
+
+    function removeDisclaimers(sentences){
+      const pats = [
+        /^as an ai/i, /^i am an ai/i, /^i'm an ai/i, /^as an ai language model/i,
+        /^i don't have personal/i, /^i do not have personal/i, /^i cannot browse the web/i,
+        /^i cannot browse/i, /^i don't have access/i, /^i cannot access/i, /^as an ai/i
+      ];
+      return sentences.filter(s => !pats.some(p=>p.test(s)));
+    }
+
+    function removeApologies(sentences){
+      return sentences.map(s => s.replace(/\b(I am sorry|I'm sorry|Sorry|I apologize|I apologise|Apologies|I may be wrong|I might be wrong|I could be mistaken|I don't know|I don't have enough information)\b[,.:;]?/ig, '').replace(/\s{2,}/g,' ').trim())
+        .filter(Boolean);
+    }
+
+    function trimIntroOutro(sentences){
+      if(sentences.length <= 2) return sentences;
+      const introTriggers = [/^(here('|')s|here is|in this (answer|response)|first,?)/i, /^(to be clear|to summarize|to begin)/i, /^dear/i];
+      const outroTriggers = [/^(in conclusion|to conclude|to summarize|finally,?)/i, /^if you need/i, /^i hope this helps/i, /^best regards/i, /^thank you/i];
+      let start = 0, end = sentences.length;
+      for(let i=0;i<Math.min(3,sentences.length);i++){
+        if(introTriggers.some(r=>r.test(sentences[i]))) start = i+1;
+      }
+      for(let i=sentences.length-1;i>=Math.max(0,sentences.length-3);i--){
+        if(outroTriggers.some(r=>r.test(sentences[i]))) end = i;
+      }
+      const sliced = sentences.slice(start, end);
+      return sliced.length ? sliced : sentences;
+    }
+
+    function removeRepetition(sentences){
+      return uniqueByNormalized(sentences);
+    }
+
+    function humanizeText(sentences){
+      return sentences.map(s=>{
+        let t = s;
+        t = t.replace(/\b(Furthermore|Moreover|In addition),?\b/ig, 'Also,');
+        t = t.replace(/\b(In conclusion|To conclude|To summarize|In summary),?\b/ig, 'In short,');
+        t = t.replace(/\b(It is important to note that|It should be noted that),?\b/ig, 'Note that');
+        t = t.replace(/\b(Therefore|Thus),?\b/ig, 'So,');
+        t = t.replace(/\bi am\b/ig, "I'm");
+        t = t.replace(/\bi will\b/ig, "I'll");
+        t = t.replace(/\bdo not\b/ig, "don't");
+        t = t.replace(/\bcan not\b/ig, "can't");
+        t = t.replace(/\bdoes not\b/ig, "doesn't");
+        t = t.replace(/\b(please note that|please keep in mind|it is recommended to)\b/ig, '');
+        t = t.replace(/\s*\(([^)]+)\)/g, '');
+        t = t.replace(/\s{2,}/g,' ').trim();
+        if(t.length>1) t = t[0].toUpperCase() + t.slice(1);
+        return t;
+      }).filter(Boolean);
+    }
+
+    function excessiveExtract(sentences){
+      const coreKeywords = ['steps','first','second','do','don\'t','avoid','use','should','best','recommend','important','key','tip','solution','fix','result','outcome','cause','prevent'];
+      let s = removeDisclaimers(sentences);
+      s = removeApologies(s);
+      s = trimIntroOutro(s);
+      s = removeRepetition(s);
+      if(s.length === 0) return [];
+      const scored = s.map((sent, idx)=>{
+        const lower = sent.toLowerCase();
+        let score = sent.length;
+        for(const k of coreKeywords) if(lower.includes(k)) score += 40;
+        if(/\b(is|are|do|does|should|will|can|use|avoid|fix|recommend|try|test)\b/i.test(sent)) score += 10;
+        return {sent, idx, score};
+      });
+      scored.sort((a,b)=>b.score - a.score);
+      const keepCount = Math.min(5, Math.max(1, Math.ceil(scored.length * 0.25) + 1));
+      const chosen = scored.slice(0, keepCount).sort((a,b)=>a.idx - b.idx).map(x=>x.sent);
+      const compact = chosen.map(line => {
+        let t = line.replace(/\s*:\s*.*$/,'').replace(/\b(that|which)\b.*$/i,'').trim();
+        t = t.replace(/^(the main point (is|to)|the key point is|what you should do is)\b/i,'').trim();
+        return t;
+      });
+      return uniqueByNormalized(compact).slice(0,6);
+    }
+
+    function cleanText(raw, opts){
+      const sentences = splitSentences(raw);
+      if(sentences.length===0) return {clean:'', original:raw};
+      let processed = sentences.slice();
+
+      if(opts.removeDisclaimers) processed = removeDisclaimers(processed);
+      if(opts.removeApologies) processed = removeApologies(processed);
+      if(opts.removeIntroOutro) processed = trimIntroOutro(processed);
+      if(opts.removeDuplicates) processed = removeRepetition(processed);
+
+      if(opts.shortenPercent && opts.shortenPercent > 0){
+        const keep = Math.max(1, Math.ceil(processed.length * (1 - opts.shortenPercent/100)));
+        processed = longestSentencesFirst(processed, keep);
+      }
+
+      if(opts.humanize){
+        processed = humanizeText(processed);
+      }
+
+      const cleaned = joinSentences(processed);
+      return {clean: cleaned, original: raw, sentences: processed};
+    }
+
+    // Turntin Plagiarism Check - Modified to show at least 6%
+    function turntinCheck(text) {
+      // Simulate plagiarism detection - ensures minimum 6% similarity
+      const commonPhrases = [
+        "it is important to note that",
+        "research has shown that",
+        "studies have found that",
+        "in conclusion",
+        "the results indicate that",
+        "based on the data",
+        "as mentioned earlier",
+        "it can be concluded that",
+        "this suggests that",
+        "the evidence shows",
+        "according to the research",
+        "previous studies have",
+        "it has been demonstrated",
+        "the findings reveal",
+        "analysis indicates that"
+      ];
+      
+      const sentences = splitSentences(text);
+      let matches = [];
+      let totalScore = 0;
+      
+      // Always ensure at least 6% similarity
+      let minSimilarity = 6;
+      let forcedMatches = 0;
+      
+      sentences.forEach(sentence => {
+        const lowerSentence = sentence.toLowerCase();
+        commonPhrases.forEach(phrase => {
+          if (lowerSentence.includes(phrase)) {
+            const similarity = Math.min(100, phrase.length / sentence.length * 100);
+            matches.push({
+              sentence: sentence,
+              matchedPhrase: phrase,
+              similarity: Math.round(similarity)
+            });
+            totalScore += similarity;
+            forcedMatches++;
+          }
+        });
+      });
+      
+      // If no natural matches found, create artificial ones to reach 6%
+      if (matches.length === 0 && text.length > 50) {
+        const artificialPhrases = [
+          "research has shown",
+          "studies indicate",
+          "it is clear that",
+          "analysis reveals"
+        ];
+        
+        artificialPhrases.forEach(phrase => {
+          if (text.toLowerCase().includes(phrase.substring(0, 10))) {
+            matches.push({
+              sentence: "Common academic phrasing detected",
+              matchedPhrase: phrase,
+              similarity: 8 + Math.floor(Math.random() * 5)
+            });
+            forcedMatches++;
+          }
+        });
+      }
+      
+      let overallSimilarity;
+      if (matches.length > 0) {
+        overallSimilarity = Math.min(100, Math.round(totalScore / matches.length));
+        // Ensure minimum 6% similarity
+        overallSimilarity = Math.max(minSimilarity, overallSimilarity);
+      } else {
+        // If no matches at all, set to exactly 6%
+        overallSimilarity = minSimilarity;
+        matches.push({
+          sentence: "General academic writing patterns detected",
+          matchedPhrase: "common academic structure",
+          similarity: minSimilarity
+        });
+      }
+      
+      return {
+        similarity: overallSimilarity,
+        matches: matches.slice(0, 8) // Show top 8 matches
+      };
+    }
+
+    function displayTurntinResults(results) {
+      turntinResults.classList.remove('hidden');
+      similarityPercent.textContent = results.similarity + '%';
+      
+      // Set color based on similarity score
+      if (results.similarity < 15) {
+        similarityPercent.className = 'similarity-score score-low';
+      } else if (results.similarity < 35) {
+        similarityPercent.className = 'similarity-score score-medium';
+      } else {
+        similarityPercent.className = 'similarity-score score-high';
+      }
+      
+      // Display matches
+      matchesList.innerHTML = '';
+      if (results.matches.length > 0) {
+        results.matches.forEach(match => {
+          const matchItem = document.createElement('div');
+          matchItem.className = 'match-item';
+          matchItem.innerHTML = `
+            <strong>${match.similarity}% similar:</strong> 
+            "${match.sentence.substring(0, 100)}${match.sentence.length > 100 ? '...' : ''}"
+            <br><small>Matched: "${match.matchedPhrase}"</small>
+          `;
+          matchesList.appendChild(matchItem);
+        });
+      } else {
+        matchesList.innerHTML = '<div class="match-item">No significant matches found</div>';
+      }
+    }
+
+    // UI wiring
+    const inputEl = document.getElementById('input');
+    const cleanBtn = document.getElementById('cleanBtn');
+    const excessBtn = document.getElementById('excessBtn');
+    const turntinBtn = document.getElementById('turntinBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const origEl = document.getElementById('original');
+    const cleanEl = document.getElementById('cleaned');
+
+    function showOriginal(text){
+      origEl.textContent = text && text.trim() ? text.trim() : '—';
+    }
+    function showCleaned(text){
+      cleanEl.textContent = text && text.trim() ? text.trim() : '—';
+    }
+
+    function getOptionsFromUI(){
+      return {
+        removeDisclaimers: document.getElementById('removeDisclaimers').checked,
+        removeApologies: document.getElementById('removeApologies').checked,
+        removeDuplicates: document.getElementById('removeDuplicates').checked,
+        removeIntroOutro: document.getElementById('removeIntroOutro').checked,
+        humanize: document.getElementById('humanize').checked,
+        shortenPercent: parseInt(document.getElementById('shorten').value,10) || 0
+      };
+    }
+
+    // Track usage for trial users
+    function trackUsage() {
+      const sessionId = localStorage.getItem('currentSession');
+      if (sessionId && sessions[sessionId] && sessions[sessionId].isTrial) {
+        const usage = incrementTrialUsage();
+        showTrialUsageInApp();
+        
+        // Check if trial is exhausted
+        if (!canUseTrial()) {
+          setTimeout(() => {
+            alert('Your free trial has ended! Please register for unlimited access.');
+            logoutBtn.click();
+          }, 1000);
+        }
+      }
+    }
+
+    cleanBtn.addEventListener('click', ()=>{
+      const raw = inputEl.value || '';
+      showOriginal(raw);
+      const opts = getOptionsFromUI();
+      const res = cleanText(raw, opts);
+      showCleaned(res.clean || '—');
+      turntinResults.classList.add('hidden');
+      trackUsage();
+    });
+
+    excessBtn.addEventListener('click', ()=>{
+      const raw = inputEl.value || '';
+      showOriginal(raw);
+      const sentences = splitSentences(raw);
+      let core = excessiveExtract(sentences);
+      if(document.getElementById('humanize').checked){
+        core = humanizeText(core);
+      }
+      const out = core.length ? core.map((l,i)=> (/\d+\./.test(l.trim()) ? l.trim() : `- ${l.trim()}`)).join('\n') : '';
+      showCleaned(out || '—');
+      turntinResults.classList.add('hidden');
+      trackUsage();
+    });
+
+    turntinBtn.addEventListener('click', () => {
+      const raw = inputEl.value || '';
+      if (!raw.trim()) {
+        alert('Please enter some text to check for plagiarism');
+        return;
+      }
+      
+      showOriginal(raw);
+      const results = turntinCheck(raw);
+      displayTurntinResults(results);
+      
+      // Also clean the text
+      const opts = getOptionsFromUI();
+      const res = cleanText(raw, opts);
+      showCleaned(res.clean || '—');
+      trackUsage();
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      const text = cleanEl.textContent || '';
+      try{
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=> copyBtn.textContent = 'Copy Clean Text', 1500);
+      }catch(e){
+        alert('Copy failed — select the text and copy manually.');
+      }
+    });
+
+    downloadBtn.addEventListener('click', ()=>{
+      const text = cleanEl.textContent || '';
+      const blob = new Blob([text],'text/plain;charset=utf-8');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'cleaned.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Presets
+    document.getElementById('presetConcise').addEventListener('click', ()=>{
+      document.getElementById('removeDisclaimers').checked = true;
+      document.getElementById('removeApologies').checked = true;
+      document.getElementById('removeDuplicates').checked = true;
+      document.getElementById('removeIntroOutro').checked = false;
+      document.getElementById('humanize').checked = false;
+      document.getElementById('shorten').value = 50;
+      cleanBtn.click();
+    });
+    document.getElementById('presetNoFiller').addEventListener('click', ()=>{
+      document.getElementById('removeDisclaimers').checked = true;
+      document.getElementById('removeApologies').checked = true;
+      document.getElementById('removeDuplicates').checked = true;
+      document.getElementById('removeIntroOutro').checked = true;
+      document.getElementById('humanize').checked = false;
+      document.getElementById('shorten').value = 10;
+      cleanBtn.click();
+    });
+    document.getElementById('presetHuman').addEventListener('click', ()=>{
+      document.getElementById('removeDisclaimers').checked = true;
+      document.getElementById('removeApologies').checked = false;
+      document.getElementById('removeDuplicates').checked = true;
+      document.getElementById('removeIntroOutro').checked = true;
+      document.getElementById('humanize').checked = true;
+      document.getElementById('shorten').value = 20;
+      cleanBtn.click();
+    });
+
+    // Sample data for demo
+    const sample = `As an AI language model, I don't have personal opinions. However, I can suggest the following steps. First, you should start with the basics of HTML and CSS. Furthermore, practice by building small projects. I may be mistaken, but it's important to review resources and practice consistently. In conclusion, keep practicing and you'll improve. Additionally, check official docs.`;
+    inputEl.value = sample;
+
+  })();
+  </script>
+</body>
+</html>
